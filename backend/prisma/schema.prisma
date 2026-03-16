@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Users
+// ---------------------------------------------------------------------------
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  addresses Address[]
+  cart      Cart?
+  orders    Order[]
+  wishlist  Wishlist?
+
+  @@index([email])
+}
+
+// ---------------------------------------------------------------------------
+// Categories
+// ---------------------------------------------------------------------------
+model Category {
+  id   String  @id @default(cuid())
+  name String
+  slug String  @unique
+
+  products Product[]
+
+  @@index([slug])
+}
+
+// ---------------------------------------------------------------------------
+// Products
+// ---------------------------------------------------------------------------
+model Product {
+  id                 String   @id @default(cuid())
+  title              String
+  description        String?
+  price              Float
+  originalPrice      Float?
+  discountPercentage Float?
+  rating             Float?
+  reviewCount        Int?     @default(0)
+  stock              Int      @default(0)
+  categoryId         String
+  createdAt          DateTime @default(now())
+
+  category      Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images        ProductImage[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([categoryId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Product Images
+// ---------------------------------------------------------------------------
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String
+  imageUrl  String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Cart (one per user)
+// ---------------------------------------------------------------------------
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Cart Items
+// ---------------------------------------------------------------------------
+model CartItem {
+  id        String @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int    @default(1)
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@index([cartId])
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------------
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  totalAmount Float
+  status      String   // e.g. PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+  createdAt   DateTime @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Order Items (snapshot of product and price at order time)
+// ---------------------------------------------------------------------------
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Addresses
+// ---------------------------------------------------------------------------
+model Address {
+  id      String @id @default(cuid())
+  userId  String
+  name    String
+  phone   String
+  street  String
+  city    String
+  state   String
+  pincode String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Wishlist
+// ---------------------------------------------------------------------------
+model Wishlist {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+
+  @@index([userId])
+}
+
+model WishlistItem {
+  id         String @id @default(cuid())
+  wishlistId String
+  productId  String
+  addedAt    DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@index([wishlistId])
+  @@index([productId])
+}

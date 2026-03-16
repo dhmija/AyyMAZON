@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-amazon-background text-amazon-text antialiased;
+    background-image: radial-gradient(circle at top, rgba(254, 189, 105, 0.18), transparent 32%);
+  }
+  a {
+    @apply text-amazon-link-blue transition-colors duration-200 hover:underline;
+  }
+
+  * {
+    @apply motion-safe:selection:bg-amazon-orange motion-safe:selection:text-amazon-nav-dark;
+  }
+}
+
+@layer utilities {
+  .surface-hover {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
