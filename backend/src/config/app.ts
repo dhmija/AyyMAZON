@@ -5,7 +5,12 @@ import { errorHandler } from "../middleware/errorHandler";
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL ?? "http://localhost:3000" }));
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter((v): v is string => Boolean(v));
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
