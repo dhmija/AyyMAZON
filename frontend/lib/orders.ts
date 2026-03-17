@@ -28,12 +28,15 @@ export interface PlaceOrderResponse {
   error?: { code: string; message: string };
 }
 
-export async function placeOrder(): Promise<PlaceOrderResponse["data"] | null> {
+export async function placeOrder(userEmail?: string): Promise<PlaceOrderResponse["data"] | null> {
+  const body = userEmail ? JSON.stringify({ email: userEmail }) : undefined;
+  
   return requestJson<PlaceOrderResponse["data"]>(
     "/orders",
     {
       method: "POST",
       headers: orderHeaders(),
+      body,
     },
     "Could not place your order."
   );

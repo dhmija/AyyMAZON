@@ -68,6 +68,7 @@ export interface Order {
 
 export interface AddressFormData {
   name: string;
+  email: string;
   phone: string;
   street: string;
   city: string;

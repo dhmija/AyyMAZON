@@ -17,7 +17,7 @@ const orderInclude = {
 };
 
 export const orderService = {
-  async create(userId: string) {
+  async create(userId: string, email?: string) {
     const cart = await prisma.cart.findUnique({
       where: { userId },
       include: {
@@ -79,9 +79,13 @@ export const orderService = {
 
     // Fetch user email to send confirmation (in a real app, users would be fully authenticated. Here we just try to get it, or fallback)
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user && user.email) {
+    
+    // Prefer the explicitly provided email during checkout, else fallback to user account email
+    const recipientEmail = email || user?.email;
+    
+    if (recipientEmail) {
       // Fire and forget email
-      sendOrderConfirmationEmail(formattedOrder.id, user.email, formattedOrder.totalAmount).catch(console.error);
+      sendOrderConfirmationEmail(formattedOrder.id, recipientEmail, formattedOrder.totalAmount).catch(console.error);
     }
 
     return formattedOrder;

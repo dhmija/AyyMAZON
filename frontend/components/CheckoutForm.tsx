@@ -19,6 +19,7 @@ export interface CheckoutFormProps {
 
 const initialEmpty: AddressFormData = {
   name: "",
+  email: "",
   phone: "",
   street: "",
   city: "",
@@ -52,6 +53,7 @@ export function CheckoutForm({
       e.preventDefault();
       const trimmed: AddressFormData = {
         name: form.name.trim(),
+        email: form.email.trim(),
         phone: form.phone.trim(),
         street: form.street.trim(),
         city: form.city.trim(),
@@ -60,6 +62,7 @@ export function CheckoutForm({
       };
       if (
         !trimmed.name ||
+        !trimmed.email ||
         !trimmed.phone ||
         !trimmed.street ||
         !trimmed.city ||
@@ -68,7 +71,7 @@ export function CheckoutForm({
       ) {
         setTouched(
           Object.fromEntries(
-            (["name", "phone", "street", "city", "state", "pincode"] as const).map(
+            (["name", "email", "phone", "street", "city", "state", "pincode"] as const).map(
               (k) => [k, true]
             )
           ) as Record<keyof AddressFormData, boolean>
@@ -114,6 +117,24 @@ export function CheckoutForm({
           />
           {showError("name") && (
             <p className="mt-1 text-xs text-red-600">Name is required</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="checkout-email" className="block text-sm font-medium text-amazon-text mb-1">
+            Email address
+          </label>
+          <input
+            id="checkout-email"
+            type="email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            onBlur={() => handleBlur("email")}
+            className={cn(inputClass, showError("email") && errorClass)}
+            placeholder="For order confirmation"
+            autoComplete="email"
+          />
+          {showError("email") && (
+            <p className="mt-1 text-xs text-red-600">Email is required</p>
           )}
         </div>
         <div>

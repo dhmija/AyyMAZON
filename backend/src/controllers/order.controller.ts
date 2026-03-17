@@ -8,7 +8,8 @@ export const orderController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as RequestWithUserId).userId;
-      const order = await orderService.create(userId);
+      const { email } = req.body;
+      const order = await orderService.create(userId, email);
       sendCreated(res, order);
     } catch (e) {
       next(e);

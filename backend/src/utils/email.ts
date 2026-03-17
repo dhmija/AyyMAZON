@@ -1,14 +1,28 @@
 import nodemailer from "nodemailer";
 
-// Using ethereal.email for mock email testing
-const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
-  auth: {
-    user: process.env.ETHEREAL_USER || "dianna.von@ethereal.email",
-    pass: process.env.ETHEREAL_PASS || "nUBd7sF7D13G9aP3nE",
-  },
-});
+const isProd = process.env.SMTP_HOST && process.env.SMTP_USER;
+
+// Fallback to ethereal if no SMTP configured
+const transporter = nodemailer.createTransport(
+  isProd
+    ? {
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      }
+    : {
+        host: "smtp.ethereal.email",
+        port: 587,
+        auth: {
+          user: process.env.ETHEREAL_USER || "dianna.von@ethereal.email",
+          pass: process.env.ETHEREAL_PASS || "nUBd7sF7D13G9aP3nE",
+        },
+      }
+);
 
 export async function sendOrderConfirmationEmail(orderId: string, userEmail: string, totalAmount: number | string) {
   try {

@@ -46,7 +46,7 @@ export default function CheckoutPage() {
     if (!address) return;
     setPlacing(true);
     try {
-      const order = await placeOrder();
+      const order = await placeOrder(address.email);
       if (order && address) {
         try {
           sessionStorage.setItem(
@@ -56,7 +56,7 @@ export default function CheckoutPage() {
         } catch {
           // ignore
         }
-        toast.success("Order placed successfully.");
+        toast.success("Order placed successfully. Confirmation email sent!");
         router.push(`/orders/${order.id}`);
       }
     } catch (error) {
