@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { addCartItem } from "@/lib/cart";
 import { getErrorMessage } from "@/lib/api";
 
@@ -13,6 +14,7 @@ interface AddToCartButtonProps {
 export function AddToCartButton({ productId, maxQuantity = 1 }: AddToCartButtonProps) {
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
 
   const handleAdd = async () => {
     setLoading(true);
@@ -22,6 +24,17 @@ export function AddToCartButton({ productId, maxQuantity = 1 }: AddToCartButtonP
     } catch (error) {
       toast.error(getErrorMessage(error, "Failed to add to cart"));
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    setLoading(true);
+    try {
+      await addCartItem(productId, quantity);
+      router.push("/cart");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to proceed to buy"));
       setLoading(false);
     }
   };
@@ -53,7 +66,7 @@ export function AddToCartButton({ productId, maxQuantity = 1 }: AddToCartButtonP
       </button>
 
       <button
-        onClick={handleAdd}
+        onClick={handleBuyNow}
         disabled={loading}
         className="w-full py-2 px-4 rounded-full bg-[#FFA41C] hover:bg-[#FA8900] active:bg-[#EA7700] border-none text-amazon-text text-sm transition-colors disabled:opacity-50"
       >
