@@ -46,49 +46,38 @@ export const productService = {
     return serializeProduct(product);
   },
 
-  async search(query: string, params: { page?: number; limit?: number }) {
+  async search(query: string, params: { page?: number; limit?: number; category?: string }) {
     const page = Math.max(1, params.page ?? 1);
     const limit = Math.min(100, Math.max(1, params.limit ?? 20));
     const skip = (page - 1) * limit;
     const term = query.trim();
-    if (!term) {
-      const [products, total] = await Promise.all([
-        prisma.product.findMany({
-          skip,
-          take: limit,
-          include: productInclude,
-          orderBy: { createdAt: "desc" },
-        }),
-        prisma.product.count(),
-      ]);
-      return {
-        data: products.map(serializeProduct),
-        total,
-        page,
-        limit,
-      };
+    
+    let categoryFilter = {};
+    if (params.category) {
+      const category = await prisma.category.findUnique({ where: { slug: params.category } });
+      if (category) categoryFilter = { categoryId: category.id };
     }
+
+    const whereClause = {
+      ...categoryFilter,
+      ...(term ? {
+        OR: [
+          { title: { contains: term } as any },
+          { description: { contains: term } as any },
+        ],
+      } : {})
+    };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
-        where: {
-          OR: [
-            { title: { contains: term, mode: "insensitive" } },
-            { description: { contains: term, mode: "insensitive" } },
-          ],
-        },
+        where: whereClause,
         skip,
         take: limit,
         include: productInclude,
         orderBy: { createdAt: "desc" },
       }),
       prisma.product.count({
-        where: {
-          OR: [
-            { title: { contains: term, mode: "insensitive" } },
-            { description: { contains: term, mode: "insensitive" } },
-          ],
-        },
+        where: whereClause,
       }),
     ]);
 

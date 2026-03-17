@@ -31,9 +31,10 @@ export const productController = {
   async search(req: Request, res: Response, next: NextFunction) {
     try {
       const q = (req.query.q ?? req.query.query ?? "") as string;
+      const category = req.query.category as string | undefined;
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
-      const result = await productService.search(q, { page, limit });
+      const result = await productService.search(q, { page, limit, category });
       sendSuccessWithMeta(res, result.data, {
         page: result.page,
         limit: result.limit,

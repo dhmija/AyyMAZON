@@ -27,3 +27,6 @@ npm-debug.log*
 *.tsbuildinfo
 .next
 coverage/
+.vercel/
+backend/.vercel/
+frontend/.vercel/

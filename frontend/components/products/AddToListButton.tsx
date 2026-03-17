@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { addToWishlist } from "@/lib/wishlist";
 
 export function AddToListButton({ productId }: { productId: string }) {
   const [loading, setLoading] = useState(false);
@@ -9,8 +10,7 @@ export function AddToListButton({ productId }: { productId: string }) {
   const handleAdd = async () => {
     setLoading(true);
     try {
-      // API call will be implemented later
-      await new Promise(r => setTimeout(r, 500));
+      await addToWishlist(productId);
       toast.success("1 item added to Wish List");
     } catch (e) {
       toast.error("Failed to add to list");

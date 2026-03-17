@@ -33,11 +33,17 @@ export async function fetchProducts(params?: {
   const searchParams = new URLSearchParams();
   if (params?.page) searchParams.set("page", String(params.page));
   if (params?.limit) searchParams.set("limit", String(params.limit));
-  if (params?.search) searchParams.set("search", params.search);
+  
+  let path = "/products";
+  if (params?.search) {
+    path = "/products/search";
+    searchParams.set("q", params.search);
+    if (params.category) searchParams.set("category", params.category);
+  } else if (params?.category) {
+    path = `/products/category/${params.category}`;
+  }
+
   const q = searchParams.toString();
-  const path = params?.category
-    ? `/products/category/${params.category}`
-    : "/products";
   return requestJson<ProductListResponse["data"]>(
     `${path}${q ? `?${q}` : ""}`,
     undefined,

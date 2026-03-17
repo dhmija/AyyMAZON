@@ -95,9 +95,11 @@ export function SearchBar({
   }, []);
 
   useEffect(() => {
-    if (debouncedQuery.length > 1) {
-      fetchProducts({ search: debouncedQuery, limit: 5 })
-        .then((res) => setSuggestions(res || []))
+    if (debouncedQuery.trim().length > 0) {
+      fetchProducts({ search: debouncedQuery.trim(), limit: 5 })
+        .then((res) => {
+          setSuggestions(res || []);
+        })
         .catch(() => setSuggestions([]));
     } else {
       setSuggestions([]);
@@ -138,10 +140,14 @@ export function SearchBar({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (!suggestOpen || recentSearches.length === 0) return;
+      if (!suggestOpen) return;
+      
+      const totalItems = recentSearches.length + (suggestions?.length || 0);
+      if (totalItems === 0) return;
+
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setHighlightedIdx((i) => Math.min(i + 1, recentSearches.length - 1));
+        setHighlightedIdx((i) => Math.min(i + 1, totalItems - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setHighlightedIdx((i) => Math.max(i - 1, -1));
@@ -150,12 +156,21 @@ export function SearchBar({
         setHighlightedIdx(-1);
       } else if (e.key === "Enter" && highlightedIdx >= 0) {
         e.preventDefault();
-        const chosen = recentSearches[highlightedIdx]!;
-        setQuery(chosen);
-        submitSearch(chosen);
+        
+        let chosen = "";
+        if (highlightedIdx < suggestions.length) {
+          chosen = suggestions[highlightedIdx].title;
+        } else {
+          chosen = recentSearches[highlightedIdx - suggestions.length];
+        }
+        
+        if (chosen) {
+          setQuery(chosen);
+          submitSearch(chosen);
+        }
       }
     },
-    [suggestOpen, recentSearches, highlightedIdx, submitSearch]
+    [suggestOpen, recentSearches, suggestions, highlightedIdx, submitSearch]
   );
 
   const handleRemoveRecent = (q: string, e: React.MouseEvent) => {
@@ -174,10 +189,10 @@ export function SearchBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn("flex flex-1 max-w-2xl min-w-0", className)}
+      className={cn("flex flex-1 max-w-2xl min-w-0 relative", className)}
       role="search"
     >
-      <div className="relative flex w-full rounded overflow-hidden border border-amazon-nav-mid focus-within:ring-2 focus-within:ring-amazon-orange-dark bg-white">
+      <div className="flex w-full rounded border border-amazon-nav-mid focus-within:ring-2 focus-within:ring-amazon-orange-dark bg-white">
         {/* Category dropdown */}
         <div className="relative shrink-0" ref={dropdownRef}>
           <button
@@ -223,7 +238,10 @@ export function SearchBar({
           ref={inputRef}
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setSuggestOpen(true);
+          }}
           onFocus={openSuggest}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}

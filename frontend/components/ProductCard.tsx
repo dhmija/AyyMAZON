@@ -10,6 +10,7 @@ import { RatingStars } from "@/components/ui/RatingStars";
 import { DiscountBadge } from "@/components/ui/DiscountBadge";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { addToWishlist, removeFromWishlist } from "@/lib/wishlist";
 
 export interface ProductCardProps {
   product: Product;
@@ -36,11 +37,25 @@ export function ProductCard({
     "https://via.placeholder.com/400x400?text=No+Image";
   const rating = product.rating != null ? parseFloat(String(product.rating)) : null;
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setWishlisted((v) => !v);
-    toast.success(wishlisted ? "Removed from Wishlist" : "Added to Wishlist");
+    
+    const newValue = !wishlisted;
+    setWishlisted(newValue);
+
+    try {
+      if (newValue) {
+        await addToWishlist(product.id);
+        toast.success("Added to Wishlist");
+      } else {
+        await removeFromWishlist(product.id);
+        toast.success("Removed from Wishlist");
+      }
+    } catch (err) {
+      setWishlisted(!newValue);
+      toast.error(newValue ? "Failed to add to Wishlist" : "Failed to remove from Wishlist");
+    }
   };
 
   return (

@@ -13,6 +13,7 @@ const paginationSchema = z.object({
 const searchQuerySchema = paginationSchema.extend({
   q: z.string().optional(),
   query: z.string().optional(),
+  category: z.string().optional(),
 });
 
 // Order matters: specific paths before /:id
