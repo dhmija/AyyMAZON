@@ -1,6 +1,6 @@
-# Amazon Clone - Scaler SDE Intern Assignment
+# AyyMAZON
 
-I built a full-stack, responsive Amazon-like e-commerce application using **Next.js 14, TypeScript, Tailwind CSS**, and a **Node.js/Express** backend powered by **Prisma** and **SQLite** as part of the Scaler SDE Intern assignment.
+I built a full-stack, responsive Amazon-like e-commerce application using **Next.js 14, TypeScript, Tailwind CSS**, and a **Node.js/Express** backend powered by **Prisma** and **SQLite**; shortlisted among the top submissions out of 100+ candidates in a competitive SDE internship evaluation.
 
 The project aims to replicate the core Amazon shopping experience, from browsing rich product catalogs to a complete checkout flow and mock order confirmation emails.
 
