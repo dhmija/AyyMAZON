@@ -8,6 +8,7 @@ import { CartSummary } from "@/components/CartSummary";
 import { CartPageSkeleton, EmptyState, ErrorState } from "@/components/ui";
 import { getErrorMessage } from "@/lib/api";
 import { fetchCart, updateCartItem, removeCartItem } from "@/lib/cart";
+import { useCart } from "@/context/CartContext";
 import type { Cart } from "@/types";
 
 const TAX_RATE = 0.18;
@@ -17,6 +18,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { refreshCartCount } = useCart();
 
   const loadCart = useCallback(async () => {
     setLoading(true);
@@ -57,6 +59,7 @@ export default function CartPage() {
             totalAmount: updated.totalAmount,
           });
         }
+        await refreshCartCount();
       } catch (error) {
         toast.error(getErrorMessage(error, "Couldn't update this cart item."));
       } finally {
@@ -78,6 +81,7 @@ export default function CartPage() {
           totalAmount: updated.totalAmount,
         });
       }
+      await refreshCartCount();
       toast.success("Item removed from cart.");
     } catch (error) {
       toast.error(getErrorMessage(error, "Couldn't remove this item."));
