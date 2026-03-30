@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { cn } from "@/lib/utils";
 
 import { Sidebar } from "@/components/Sidebar";
+import { useCart } from "@/context/CartContext";
 
 const SECOND_BAR_CATEGORIES = [
   { label: "Rufus", slug: "#" },
@@ -33,11 +34,11 @@ export interface NavbarProps {
 
 export function Navbar({
   searchValue,
-  cartCount = 0,
   deliveryLocation = "India",
   className,
 }: NavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { cartCount } = useCart();
   const router = useRouter();
 
   const handleSearch = (query: string, categorySlug?: string) => {
@@ -119,21 +120,45 @@ export function Navbar({
         {/* Cart */}
         <Link
           href="/cart"
-          className="relative flex items-center gap-1 py-1 px-2 rounded hover:opacity-90 shrink-0 transition-transform duration-200 hover:-translate-y-0.5"
+          className="relative flex items-end gap-1 pb-1.5 px-2 rounded hover:opacity-90 shrink-0 transition-transform duration-200 hover:-translate-y-0.5"
           aria-label={`Cart, ${cartCount} items`}
         >
-          <CartIcon className="w-9 h-9 text-white" />
-          <span className="hidden sm:inline font-semibold text-amazon-orange-dark text-sm">
-            Cart
-          </span>
-          {cartCount > 0 && (
+          {/* Container matches Amazon's #nav-cart-count-container: position relative */}
+          <div style={{ position: "relative", width: "41px", height: "28px" }}>
+            {/* Amazon sprite — exact position match */}
             <span
-              className="absolute top-0 left-5 sm:left-6 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amazon-orange-dark text-amazon-nav-dark text-xs font-bold"
+              style={{
+                width: "41px",
+                height: "28px",
+                backgroundImage:
+                  "url('https://m.media-amazon.com/images/G/31/gno/sprites/nav-sprite-global-1x-reorg-privacy._CB546381437_.png')",
+                backgroundPosition: "-218px -337px",
+                backgroundRepeat: "no-repeat",
+                display: "block",
+              }}
+              aria-hidden
+            />
+            {/* Counter — sits inside the basket */}
+            <span
+              style={{
+                position: "absolute",
+                top: "-3px",
+                left: "14px",
+                minWidth: "18px",
+                textAlign: "center",
+                color: "#f08804",
+                fontWeight: 700,
+                fontSize: "14px",
+                lineHeight: "16px",
+              }}
               aria-hidden
             >
               {cartCount > 99 ? "99+" : cartCount}
             </span>
-          )}
+          </div>
+          <span className="font-bold text-white text-sm mb-0.5">
+            Cart
+          </span>
         </Link>
       </div>
 
@@ -169,13 +194,6 @@ function LocationIcon({ className }: { className?: string }) {
   );
 }
 
-function CartIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-      <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
-    </svg>
-  );
-}
 
 function MenuIcon({ className }: { className?: string }) {
   return (
